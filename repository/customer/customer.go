@@ -3,6 +3,10 @@ package customer
 import (
 	"booking-api/config"
 	"booking-api/models"
+	"fmt"
+	"reflect"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type CustomerRepository interface {
@@ -36,6 +40,11 @@ func (c *customerRepository) GetCustomerByIdRepository(id uint) (CustomerRes, er
 		return CustomerRes{}, err
 	}
 
+	if res == (models.Customer{}) {
+		var err = fmt.Errorf("user does not exists")
+		return CustomerRes{}, err
+	}
+
 	result := CustomerRes{
 		ID:        res.ID,
 		FirstName: res.FirstName,
@@ -53,6 +62,11 @@ func (c *customerRepository) GetAllCustomerRepository() ([]CustomerRes, error) {
 
 	if err := config.DB.Table("customers").
 		Find(&res).Error; err != nil {
+		return []CustomerRes{}, err
+	}
+
+	if len(res) == 0 {
+		var err = fmt.Errorf("user does not exists")
 		return []CustomerRes{}, err
 	}
 
@@ -81,31 +95,54 @@ type CustomerUpdateReq struct {
 }
 
 func (c *customerRepository) UpdateCustomerRepository(req CustomerUpdateReq) (CustomerRes, error) {
-	var res models.Customer
+	var before models.Customer
 
-	before, err := c.GetCustomerByIdRepository(req.ID)
-	if err != nil && before == (CustomerRes{}) {
+	if err := config.DB.Table("customers").
+		Where("id = ?", req.ID).
+		Find(&before).Error; err != nil {
 		return CustomerRes{}, err
 	}
 
-	res.FirstName = req.LastName
-	res.LastName = req.LastName
-	res.Phone = req.Phone
-	res.Password = req.Password
+	if before == (models.Customer{}) {
+		var err = fmt.Errorf("user does not exists")
+		return CustomerRes{}, err
+	}
 
-	if err := config.DB.Table("customer").
-		Save(&res).Error; err != nil {
+	tmp := reflect.TypeOf(req)
+	for i := 0; i < tmp.NumField(); i++ {
+		field := tmp.Field(i)
+		data := reflect.ValueOf(req).FieldByName(field.Name)
+		beforePtr := &before
+
+		if data.Kind() == reflect.String && data.String() != "" {
+			fmt.Println(field.Name)
+			if field.Name == "Password" {
+				encryptedPw, err := bcrypt.GenerateFromPassword([]byte(req.Password), 10)
+				if err != nil {
+					return CustomerRes{}, err
+				}
+				reflect.ValueOf(beforePtr).Elem().FieldByName(field.Name).SetString(string(encryptedPw))
+				continue
+			}
+
+			reflect.ValueOf(beforePtr).Elem().FieldByName(field.Name).SetString(data.String())
+		}
+
+	}
+
+	if err := config.DB.Table("customers").
+		Save(&before).Error; err != nil {
 		config.DB.Rollback()
 		return CustomerRes{}, err
 	}
 
 	result := CustomerRes{
-		ID:        res.ID,
-		FirstName: res.FirstName,
-		LastName:  res.LastName,
-		Email:     res.Email,
-		Phone:     res.Phone,
-		Role:      res.Role,
+		ID:        before.ID,
+		FirstName: before.FirstName,
+		LastName:  before.LastName,
+		Email:     before.Email,
+		Phone:     before.Phone,
+		Role:      before.Role,
 	}
 
 	return result, nil
