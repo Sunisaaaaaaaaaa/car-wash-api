@@ -1,25 +1,24 @@
-package customer
+package employee
 
 import (
-	repo "booking-api/repository/customer"
+	repo "booking-api/repository/employee"
 	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-type CustomerController struct {
-	customerRepo repo.CustomerRepository
+type EmployeeController struct {
+	employeeRepo repo.EmployeeRepository
 }
 
-func NewCustomerController(customerRepo repo.CustomerRepository) *CustomerController {
-	return &CustomerController{
-		customerRepo: customerRepo,
+func NewCustomerController(employeeRepo repo.EmployeeRepository) *EmployeeController {
+	return &EmployeeController{
+		employeeRepo: employeeRepo,
 	}
 }
 
-func (cc *CustomerController) GetCustomerById(ctx *gin.Context) {
-
+func (ec *EmployeeController) GetEmployeeById(ctx *gin.Context) {
 	userId, ok := ctx.Get("userId")
 	if !ok {
 		ctx.JSON(http.StatusUnauthorized, gin.H{
@@ -40,10 +39,10 @@ func (cc *CustomerController) GetCustomerById(ctx *gin.Context) {
 		return
 	}
 
-	res, err := cc.customerRepo.GetCustomerByIdRepository(id)
+	res, err := ec.employeeRepo.GetEmployeeByIdRepo(id)
 
 	if err != nil {
-		if err == fmt.Errorf("user does not exist") {
+		if err == fmt.Errorf("employee does not exist") {
 			ctx.JSON(http.StatusNotFound, gin.H{
 				"errorCode":   http.StatusNotFound,
 				"errorDetail": err.Error(),
@@ -61,11 +60,11 @@ func (cc *CustomerController) GetCustomerById(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, res)
 }
 
-func (cc *CustomerController) GetAllCustomer(ctx *gin.Context) {
+func (ec *EmployeeController) GetAllEmployee(ctx *gin.Context) {
 
-	allCus, err := cc.customerRepo.GetAllCustomerRepository()
+	res, err := ec.employeeRepo.GetAllEmployeeRepo()
 	if err != nil {
-		if err == fmt.Errorf("user does not exist") {
+		if err == fmt.Errorf("employee does not exist") {
 			ctx.JSON(http.StatusNotFound, gin.H{
 				"errorCode":   http.StatusNotFound,
 				"errorDetail": err.Error(),
@@ -80,11 +79,55 @@ func (cc *CustomerController) GetAllCustomer(ctx *gin.Context) {
 		}
 	}
 
-	ctx.JSON(http.StatusOK, allCus)
+	ctx.JSON(http.StatusOK, res)
 }
 
-func (cc *CustomerController) UpdateCustomer(ctx *gin.Context) {
-	var req repo.CustomerUpdateReq
+func (ec *EmployeeController) GetActivedEmployee(ctx *gin.Context) {
+
+	res, err := ec.employeeRepo.GetActivedEmployeeRepo()
+	if err != nil {
+		if err == fmt.Errorf("employee does not exist") {
+			ctx.JSON(http.StatusNotFound, gin.H{
+				"errorCode":   http.StatusNotFound,
+				"errorDetail": err.Error(),
+			})
+			return
+		} else {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"errorCode":   http.StatusInternalServerError,
+				"errorDetail": err.Error(),
+			})
+			return
+		}
+	}
+
+	ctx.JSON(http.StatusOK, res)
+}
+
+func (ec *EmployeeController) GetInActivedEmployee(ctx *gin.Context) {
+
+	res, err := ec.employeeRepo.GetInActivedEmployeeRepo()
+	if err != nil {
+		if err == fmt.Errorf("employee does not exist") {
+			ctx.JSON(http.StatusNotFound, gin.H{
+				"errorCode":   http.StatusNotFound,
+				"errorDetail": err.Error(),
+			})
+			return
+		} else {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"errorCode":   http.StatusInternalServerError,
+				"errorDetail": err.Error(),
+			})
+			return
+		}
+	}
+
+	ctx.JSON(http.StatusOK, res)
+}
+
+func (ec *EmployeeController) UpdateEmployee(ctx *gin.Context) {
+	var req repo.EmployeeReq
 
 	userId, ok := ctx.Get("userId")
 	if !ok {
@@ -111,13 +154,49 @@ func (cc *CustomerController) UpdateCustomer(ctx *gin.Context) {
 			"errorCode":   http.StatusBadRequest,
 			"errorDetail": err.Error(),
 		})
+		return
 	}
 
-	req.ID = uint(id)
+	req.EmployeeId = id
 
-	res, err := cc.customerRepo.UpdateCustomerRepository(req)
+	res, err := ec.employeeRepo.UpdateEmployeeRepo(req)
+
 	if err != nil {
-		if err == fmt.Errorf("user does not exist") {
+		if err == fmt.Errorf("employee does not exist") {
+			ctx.JSON(http.StatusNotFound, gin.H{
+				"errorCode":   http.StatusNotFound,
+				"errorDetail": err.Error(),
+			})
+			return
+		} else {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"errorCode":   http.StatusInternalServerError,
+				"errorDetail": err.Error(),
+			})
+			return
+		}
+	}
+	ctx.JSON(http.StatusOK, res)
+}
+
+type DeactivateEmployeereq struct {
+	EmployeeId uint `json:"employeeid"`
+}
+
+func (ec *EmployeeController) DeactivateEmployee(ctx *gin.Context) {
+	var req DeactivateEmployeereq
+
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"errorCode":   http.StatusBadRequest,
+			"errorDetail": err.Error(),
+		})
+		return
+	}
+
+	res, err := ec.employeeRepo.DeleteEmployeeRepo(req.EmployeeId)
+	if err != nil {
+		if err == fmt.Errorf("employee does not exist") {
 			ctx.JSON(http.StatusNotFound, gin.H{
 				"errorCode":   http.StatusNotFound,
 				"errorDetail": err.Error(),
@@ -133,58 +212,5 @@ func (cc *CustomerController) UpdateCustomer(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, res)
-}
-
-func (cc *CustomerController) DeleteCustomer(ctx *gin.Context) {
-
-	userId, ok := ctx.Get("userId")
-	if !ok {
-		ctx.JSON(http.StatusUnauthorized, gin.H{
-			"errorCode":   http.StatusUnauthorized,
-			"errorDetail": "user id is not set",
-		})
-		return
-	}
-
-	var id uint
-	if v, ok := userId.(float64); ok {
-		id = uint(v)
-	} else {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"errorCode":   http.StatusInternalServerError,
-			"errorDetail": "user id invalid",
-		})
-		return
-	}
-
-	_, err := cc.customerRepo.GetCustomerByIdRepository(id)
-	if err != nil {
-		if err == fmt.Errorf("user does not exist") {
-			ctx.JSON(http.StatusNotFound, gin.H{
-				"errorCode":   http.StatusNotFound,
-				"errorDetail": err.Error(),
-			})
-			return
-		} else {
-			ctx.JSON(http.StatusInternalServerError, gin.H{
-				"errorCode":   http.StatusInternalServerError,
-				"errorDetail": err.Error(),
-			})
-			return
-		}
-	}
-
-	if err = cc.customerRepo.DeleteCustomerRepository(id); err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"errorCode":   http.StatusInternalServerError,
-			"errorDetail": err.Error(),
-		})
-		return
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"errorCode":   http.StatusOK,
-		"errorDetail": "delete successful",
-	})
 
 }

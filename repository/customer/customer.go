@@ -3,6 +3,7 @@ package customer
 import (
 	"booking-api/config"
 	"booking-api/models"
+	vehicleRepo "booking-api/repository/vehicle"
 	"fmt"
 	"reflect"
 
@@ -41,7 +42,7 @@ func (c *customerRepository) GetCustomerByIdRepository(id uint) (CustomerRes, er
 	}
 
 	if res == (models.Customer{}) {
-		var err = fmt.Errorf("user does not exists")
+		var err = fmt.Errorf("user does not exist")
 		return CustomerRes{}, err
 	}
 
@@ -66,7 +67,7 @@ func (c *customerRepository) GetAllCustomerRepository() ([]CustomerRes, error) {
 	}
 
 	if len(res) == 0 {
-		var err = fmt.Errorf("user does not exists")
+		var err = fmt.Errorf("user does not exist")
 		return []CustomerRes{}, err
 	}
 
@@ -87,7 +88,7 @@ func (c *customerRepository) GetAllCustomerRepository() ([]CustomerRes, error) {
 }
 
 type CustomerUpdateReq struct {
-	ID        uint   `json:"customerId"`
+	ID        uint   
 	FirstName string `json:"firstName"`
 	LastName  string `json:"lastName"`
 	Phone     string `json:"phone"`
@@ -104,7 +105,7 @@ func (c *customerRepository) UpdateCustomerRepository(req CustomerUpdateReq) (Cu
 	}
 
 	if before == (models.Customer{}) {
-		var err = fmt.Errorf("user does not exists")
+		var err = fmt.Errorf("user does not exist")
 		return CustomerRes{}, err
 	}
 
@@ -132,7 +133,6 @@ func (c *customerRepository) UpdateCustomerRepository(req CustomerUpdateReq) (Cu
 
 	if err := config.DB.Table("customers").
 		Save(&before).Error; err != nil {
-		config.DB.Rollback()
 		return CustomerRes{}, err
 	}
 
@@ -149,9 +149,41 @@ func (c *customerRepository) UpdateCustomerRepository(req CustomerUpdateReq) (Cu
 }
 
 func (c *customerRepository) DeleteCustomerRepository(id uint) error {
+	var res models.Customer
 
 	if err := config.DB.Table("customers").
-		Delete(&models.Customer{}, id).Error; err != nil {
+		Where("id = ?", id).
+		Find(&res).Error; err != nil {
+		return err
+	}
+
+	if res == (models.Customer{}) {
+		var err = fmt.Errorf("user does not exist")
+		return err
+	}
+
+	vehicle, err := vehicleRepo.NewVehicleRepository().GetVehicleByCusIdRepo(id)
+	if err != nil && err.Error() != ("vehicle does not exist") {
+		return err
+	}
+
+	if len(vehicle) != 0 {
+		var allId []uint
+		for _, v := range vehicle {
+			allId = append(allId, v.VehicleId)
+		}
+		req := vehicleRepo.DeleteVehicleReq{
+			CustomerId: id,
+			VehicleId:  allId,
+		}
+		err = vehicleRepo.NewVehicleRepository().DeleteVehicleRepo(req)
+		if err != nil {
+			return err
+		}
+	}
+
+	if err := config.DB.Table("customers").Where("id = ?", id).
+		Delete(&res).Error; err != nil {
 		return err
 	}
 

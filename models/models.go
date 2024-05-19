@@ -23,13 +23,14 @@ type Invoice struct {
 	Amount     int
 	IsCancled  bool
 	IsPaid     bool
+	EndDate    time.Time
 	CustomerId uint
 	Customer   Customer `gorm:"references:ID"`
 	BookingId  uint
 	Booking    Booking `gorm:"references:ID"`
 	VehicleId  uint
 	Vehicle    Vehicle `gorm:"references:ID"`
-	EmployeeId uint
+	EmployeeId *uint
 	Employee   Employee `gorm:"references:ID"`
 }
 
@@ -47,9 +48,10 @@ type Booking struct {
 	gorm.Model
 	BookingDate time.Time
 	FinishDate  time.Time
+	IsFinished  bool
 	IsTaken     bool
 	TakenAt     time.Time
-	EmployeeId  uint
+	EmployeeId  *uint
 	Employee    Employee `gorm:"references:ID"`
 	CustomerId  uint
 	Customer    Customer `gorm:"references:ID"`

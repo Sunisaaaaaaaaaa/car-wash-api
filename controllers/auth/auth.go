@@ -2,7 +2,6 @@ package auth
 
 import (
 	repo "booking-api/repository/auth"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -30,7 +29,7 @@ func (ac *AuthController) Register(ctx *gin.Context) {
 
 	res, err := ac.authRepo.RegisterRepository(req)
 	if err != nil {
-		if err == fmt.Errorf("user exists") {
+		if err.Error() == ("user exists") {
 			ctx.JSON(http.StatusInternalServerError, gin.H{
 				"errorCode":   http.StatusInternalServerError,
 				"errorDetail": err.Error(),
@@ -48,8 +47,8 @@ func (ac *AuthController) Register(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, res)
 }
 
-func (ac *AuthController) Loggin(ctx *gin.Context) {
-	var req repo.CustomerLoginRequest
+func (ac *AuthController) Login(ctx *gin.Context) {
+	var req repo.LoginRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"errorCode":   http.StatusBadRequest,
@@ -58,11 +57,65 @@ func (ac *AuthController) Loggin(ctx *gin.Context) {
 		return
 	}
 
-	res, err := ac.authRepo.LogginRepository(req)
+	res, err := ac.authRepo.LoginRepository(req)
 	if err != nil {
-		if err == fmt.Errorf("user does not exists") {
+		if err.Error() == ("user does not exist") {
+			ctx.JSON(http.StatusNotFound, gin.H{
+				"errorCode":   http.StatusNotFound,
+				"errorDetail": err.Error(),
+			})
+			return
+		} else {
 			ctx.JSON(http.StatusInternalServerError, gin.H{
 				"errorCode":   http.StatusInternalServerError,
+				"errorDetail": err.Error(),
+			})
+			return
+		}
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"token": res,
+	})
+}
+
+func (ac *AuthController) RegisterForEmployee(ctx *gin.Context) {
+	var req repo.EmployeeRegRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"errorCode":   http.StatusBadRequest,
+			"errorDetail": err.Error(),
+		})
+		return
+	}
+
+	res, err := ac.authRepo.RegisterForEmployeeRepository(req)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"errorCode":   http.StatusInternalServerError,
+			"errorDetail": err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, res)
+}
+
+func (ac *AuthController) LoginForEmployee(ctx *gin.Context) {
+	var req repo.LoginRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"errorCode":   http.StatusBadRequest,
+			"errorDetail": err.Error(),
+		})
+		return
+	}
+
+	res, err := ac.authRepo.LoginForEmployeeRepository(req)
+	if err != nil {
+		if err.Error() == ("user does not exist") {
+			ctx.JSON(http.StatusNotFound, gin.H{
+				"errorCode":   http.StatusNotFound,
 				"errorDetail": err.Error(),
 			})
 			return
