@@ -100,7 +100,7 @@ func (r *vehicleRepository) GetVehicleByIdRepo(id uint) (VehicleRes, error) {
 	return result, nil
 }
 
-// test already
+
 func (r *vehicleRepository) GetVehicleByCusIdRepo(id uint) ([]VehicleRes, error) {
 	var res []models.Vehicle
 
@@ -130,7 +130,7 @@ func (r *vehicleRepository) GetVehicleByCusIdRepo(id uint) ([]VehicleRes, error)
 
 }
 
-// employee
+
 func (r *vehicleRepository) GetAllVehicleRepo() ([]VehicleRes, error) {
 	var res []models.Vehicle
 
@@ -208,7 +208,7 @@ type DeleteVehicleReq struct {
 	VehicleId  []uint `json:"vehicleId"`
 }
 
-// test already
+
 func (r *vehicleRepository) DeleteVehicleRepo(req DeleteVehicleReq) error {
 	var res models.Vehicle
 

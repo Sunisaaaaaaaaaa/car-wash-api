@@ -41,7 +41,7 @@ type InvoiceRes struct {
 	BookingId  uint      `json:"bookingId"`
 }
 
-// test already
+
 func (r *invoiceRepository) CreateInvoiceRepo(req models.Invoice) (InvoiceRes, error) {
 	var bookExists models.Booking
 
@@ -223,7 +223,7 @@ func (r *invoiceRepository) GetCancledInvoiceByDateRepo(req InvoiceByDateReq) ([
 	return result, nil
 }
 
-// paid already
+
 func (r *invoiceRepository) GetInvoiceByEmpIdAndDateRepo(id uint, req InvoiceByDateReq) ([]InvoiceRes, error) {
 	var res []models.Invoice
 
@@ -299,8 +299,7 @@ func (r *invoiceRepository) GetInvoiceByCusIdRepo(id uint) ([]InvoiceRes, error)
 	return result, nil
 }
 
-// test already
-// cus can see their invoice and employee can get to finish pay
+
 func (r *invoiceRepository) GetInvoiceByBookingIdRepo(id uint) (models.Invoice, error) {
 	var res models.Invoice
 
@@ -317,7 +316,7 @@ func (r *invoiceRepository) GetInvoiceByBookingIdRepo(id uint) (models.Invoice, 
 	return res, nil
 }
 
-// check ispaid false? update enddate and booking isfinished == true
+
 func (r *invoiceRepository) UpdatePaidInvoiceRepo(id uint) (InvoiceRes, error) {
 	var res models.Invoice
 
@@ -360,8 +359,7 @@ func (r *invoiceRepository) UpdatePaidInvoiceRepo(id uint) (InvoiceRes, error) {
 	return result, nil
 }
 
-// enddate
-// test already
+
 func (r *invoiceRepository) UpdateCancleInvoiceRepo(bookingId uint) (models.Invoice, error) {
 	var res models.Invoice
 
@@ -392,7 +390,7 @@ type UpdateInvoiceReq struct {
 	Discount   int `json:"discount"`
 }
 
-// test already
+
 func (r *invoiceRepository) UpdateInvoiceRepo(req UpdateInvoiceReq) (models.Invoice, error) {
 	var res models.Invoice
 

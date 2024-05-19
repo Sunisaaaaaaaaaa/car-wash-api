@@ -30,7 +30,6 @@ type BookingCreateReq struct {
 	CustomerId  uint      `json:"customerId"`
 	BookingDate time.Time `json:"bookingDate"`
 	VehicleId   uint      `json:"vehicleId"`
-	// TotalPrice  int       `json:"totalPrice"`
 }
 
 type BookingRes struct {
@@ -140,7 +139,6 @@ func (r *bookingRepository) GetBookingByIdRepo(id uint) (BookingRes, error) {
 	return result, nil
 }
 
-// ดูคิวที่จองไว้
 func (r *bookingRepository) GetBookingByCusIdRepo(cusId uint) ([]BookingRes, error) {
 	var res []models.Booking
 
@@ -174,7 +172,7 @@ func (r *bookingRepository) GetBookingByCusIdRepo(cusId uint) ([]BookingRes, err
 
 }
 
-// taken already. to finish the booking
+
 func (r *bookingRepository) GetBookingByEmpIdRepo(emId uint) ([]BookingRes, error) {
 	var res []models.Booking
 
@@ -215,7 +213,7 @@ type BookingByDateReq struct {
 	EndDate   time.Time `json:"endDate"`
 }
 
-// ลูกค้าดูคิว หรือ พนักงานดูคิวทั้งหมดของวัน
+
 func (r *bookingRepository) GetBookingByDateRepo(req BookingByDateReq) ([]BookingRes, error) {
 	var res []models.Booking
 	if err := config.DB.Table("bookings").
@@ -249,7 +247,7 @@ func (r *bookingRepository) GetBookingByDateRepo(req BookingByDateReq) ([]Bookin
 
 }
 
-// พนักงานดูคิว
+
 func (r *bookingRepository) GetBookingThatNotTakenByDateRepo(req BookingByDateReq) ([]BookingRes, error) {
 	var res []models.Booking
 	if err := config.DB.Table("bookings").
@@ -287,7 +285,7 @@ type UpdateTakenBookingReq struct {
 	BookingId  uint  `json:"bookingId"`
 }
 
-// is_taken takenat update invoice too (empId)
+
 func (r *bookingRepository) UpdateToTakeBookingRepo(req UpdateTakenBookingReq) (BookingRes, error) {
 	var before models.Booking
 
@@ -343,7 +341,6 @@ type UpdateFinishedBookingReq struct {
 	Discount   int   `json:"discount"`
 }
 
-// is_finish date update amount discount invoice too
 func (r *bookingRepository) UpdateToFinishBookingRepo(req UpdateFinishedBookingReq) (BookingRes, error) {
 	var before models.Booking
 
@@ -395,7 +392,6 @@ type CancleBookingReq struct {
 	BookingId  uint `form:"bookingId"`
 }
 
-// ลบเลยจะได้ get ไม่ได้อีก update cancle invoice and before employee take it
 func (r *bookingRepository) DeleteBookingRepo(req CancleBookingReq) error {
 	var res models.Booking
 

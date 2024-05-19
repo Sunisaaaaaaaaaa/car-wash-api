@@ -29,7 +29,6 @@ type EmployeeRes struct {
 	FirstName  string `json:"firstName"`
 	LastName   string `json:"lastName"`
 	Email      string `json:"email"`
-	Password   string `json:"-"` // Omit from JSON response for security reasons
 	Phone      string `json:"phone"`
 	Role       int    `json:"role"`
 	IsActive   bool   `json:"isActive"`
@@ -55,7 +54,6 @@ func (r *employeeRepository) GetEmployeeByIdRepo(id uint) (EmployeeRes, error) {
 		FirstName:  res.FirstName,
 		LastName:   res.LastName,
 		Email:      res.Email,
-		Password:   res.Password,
 		Phone:      res.Phone,
 		Role:       res.Role,
 		IsActive:   res.IsActive,
@@ -87,7 +85,6 @@ func (r *employeeRepository) GetAllEmployeeRepo() ([]EmployeeRes, error) {
 			FirstName:  e.FirstName,
 			LastName:   e.LastName,
 			Email:      e.Email,
-			Password:   e.Password,
 			Phone:      e.Phone,
 			Role:       e.Role,
 			IsActive:   e.IsActive,
@@ -122,7 +119,6 @@ func (r *employeeRepository) GetActivedEmployeeRepo() ([]EmployeeRes, error) {
 			FirstName:  e.FirstName,
 			LastName:   e.LastName,
 			Email:      e.Email,
-			Password:   e.Password,
 			Phone:      e.Phone,
 			Role:       e.Role,
 			IsActive:   e.IsActive,
@@ -155,7 +151,6 @@ func (r *employeeRepository) GetInActivedEmployeeRepo() ([]EmployeeRes, error) {
 			FirstName:  e.FirstName,
 			LastName:   e.LastName,
 			Email:      e.Email,
-			Password:   e.Password,
 			Phone:      e.Phone,
 			Role:       e.Role,
 			IsActive:   e.IsActive,
@@ -230,7 +225,6 @@ func (r *employeeRepository) UpdateEmployeeRepo(req EmployeeReq) (EmployeeRes, e
 		FirstName:  before.FirstName,
 		LastName:   before.LastName,
 		Email:      before.Email,
-		Password:   before.Password,
 		Phone:      before.Phone,
 		Role:       before.Role,
 		IsActive:   before.IsActive,
@@ -268,7 +262,6 @@ func (r *employeeRepository) DeleteEmployeeRepo(id uint) (EmployeeRes, error) {
 		FirstName:  res.FirstName,
 		LastName:   res.LastName,
 		Email:      res.Email,
-		Password:   res.Password,
 		Phone:      res.Phone,
 		Role:       res.Role,
 		IsActive:   res.IsActive,

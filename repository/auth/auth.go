@@ -90,12 +90,12 @@ func (r *authenRepository) LoginRepository(user LoginRequest) (string, error) {
 			"exp":    time.Now().Add(time.Hour * 10).Unix(),
 		})
 
-		// Sign and get the complete encoded token as a string using the secret
+
 		tokenString, err := token.SignedString(hmacSampleSecret)
 		if err != nil {
 			return "", fmt.Errorf("error to sign token")
 		}
-		// fmt.Println(tokenString, err)
+
 
 		return tokenString, nil
 	} else {
@@ -171,12 +171,12 @@ func (r *authenRepository) LoginForEmployeeRepository(user LoginRequest) (string
 			"exp":    time.Now().Add(time.Minute * 100).Unix(),
 		})
 
-		// Sign and get the complete encoded token as a string using the secret
+	
 		tokenString, err := token.SignedString(hmacSampleSecret)
 		if err != nil {
 			return "", fmt.Errorf("error to sign token")
 		}
-		// fmt.Println(tokenString, err)
+
 
 		return tokenString, nil
 	} else {
