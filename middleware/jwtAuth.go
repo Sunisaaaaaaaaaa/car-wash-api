@@ -98,19 +98,3 @@ func Authorization(validRoles []string) gin.HandlerFunc {
 
 	}
 }
-
-func LogoutHandler() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		if header := ctx.Request.Header.Get("Authorization"); header != "" {
-			ctx.Request.Header.Del("Authorization")
-			ctx.JSON(http.StatusOK, gin.H{
-				"message": "logout successful",
-			})
-		} else {
-			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-				"errorCode":   http.StatusInternalServerError,
-				"errorDetail": "token not found",
-			})
-		}
-	}
-}
