@@ -49,7 +49,6 @@ func Routes(r *gin.Engine) {
 	customer.Use(middleware.Authorization([]string{os.Getenv("CUSTOMER")}))
 	customer.GET("/detail", customerCont.GetCustomerById)
 	customer.PUT("/detail", customerCont.UpdateCustomer)
-	customer.POST("/logout", middleware.LogoutHandler())
 	customer.DELETE("/delete", customerCont.DeleteCustomer)
 	customer.POST("/booking", bookCont.CreateBooking)
 	customer.GET("/booking-by-id", bookCont.GetBookingById)
